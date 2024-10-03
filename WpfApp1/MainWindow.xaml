@@ -1,0 +1,26 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="Программа учета расходов" Height="450" Width="600" WindowStyle="ThreeDBorderWindow">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width ="100*"/>
+            <ColumnDefinition Width ="100*"/>
+            <ColumnDefinition Width="100*"/>
+
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25*"/>
+            <RowDefinition Height="200*"/>
+        </Grid.RowDefinitions>
+        <Button Content="Расходы" HorizontalAlignment="Center" Margin="26,0,0,0" VerticalAlignment="Center" Width="132" Click="Button_category" IsCancel="True"/>
+        <Button Content="Статистика" HorizontalAlignment="Center" VerticalAlignment="Center" Width="132" Grid.Column="2" Click="Button_statistic"/>
+        <Button Content="Категории затрат" HorizontalAlignment="Center" VerticalAlignment="Center" Width="132" Grid.Column="1" Click="Button_trafic_Click"/>
+
+    </Grid>
+</Window>

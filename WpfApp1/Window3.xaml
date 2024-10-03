@@ -1,0 +1,33 @@
+﻿<Window x:Class="WpfApp1.Window3"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Учет расходов" Height="450" Width="600">
+    <Grid>
+        <!-- Выбор категории -->
+       <!-- <Label Content="Категория:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="CategoryComboBox" HorizontalAlignment="Left" Margin="100,10,0,0" VerticalAlignment="Top" Width="200" SelectionChanged="CategoryComboBox_SelectionChanged"/> -->
+
+        <Label Content="Категория:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="CategoryComboBox" 
+                  HorizontalAlignment="Left" 
+                  Margin="100,10,0,0" 
+                  VerticalAlignment="Top" 
+                  Width="200" 
+                  SelectionChanged="CategoryComboBox_SelectionChanged"/>
+        <!-- Ввод даты -->
+        <Label Content="Дата:" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top"/>
+        <DatePicker x:Name="ExpenseDatePicker" HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top" Width="200"/>
+
+        <!-- Ввод стоимости -->
+        <Label Content="Стоимость:" HorizontalAlignment="Left" Margin="10,90,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="CostTextBox" HorizontalAlignment="Left" Margin="100,90,0,0" VerticalAlignment="Top" Width="200" Text=""/>
+
+        <!-- Ввод комментария -->
+        <Label Content="Комментарий:" HorizontalAlignment="Left" Margin="10,130,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="CommentTextBox" HorizontalAlignment="Left" Margin="100,130,0,0" VerticalAlignment="Top" Width="200" Height="100" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+        <!-- Кнопка для сохранения расхода -->
+        <Button Content="Сохранить расход" Name="SaveExpenseButton" HorizontalAlignment="Left" Margin="100,250,0,0" VerticalAlignment="Top" Width="200" Click="SaveExpenseButton_Click"/>
+        <Button Content="Сохранить расход" HorizontalAlignment="Left" Margin="100,250,0,0" VerticalAlignment="Top" Width="200" Click="SaveExpenseButton_Click"/>
+    </Grid>
+</Window>
