@@ -14,17 +14,24 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml.Linq;
 using Npgsql;
+using Microsoft.EntityFrameworkCore;
+using WpfApp1.Models;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Логика взаимодействия для Window3.xaml
-    /// </summary>
     public partial class Window3 : Window
     {
+        private readonly AppDbContext _context;
+
         public Window3()
         {
             InitializeComponent();
+
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseNpgsql("Host=localhost;Username=postgres;Password=qwerty123;Database=home");
+
+            _context = new AppDbContext(optionsBuilder.Options);
+
             LoadCategories();
         }
 
@@ -32,25 +39,10 @@ namespace WpfApp1
         {
             try
             {
-                using (var conn = new NpgsqlConnection("Host=localhost;Username=postgres;Password=qwerty123;Database=home"))
-                {
-                    conn.Open();
-                    using (var cmd = new NpgsqlCommand("SELECT \"Name\" FROM categories", conn))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        CategoryComboBox.Items.Clear(); 
-                        if (!reader.HasRows)
-                        {
-                            MessageBox.Show("Таблица categories пуста!");
-                            return;
-                        }
-
-                        while (reader.Read())
-                        {
-                            CategoryComboBox.Items.Add(reader.GetString(0)); 
-                        }
-                    }
-                }
+                var categories = _context.Categories.ToList();
+                CategoryComboBox.ItemsSource = categories;
+                CategoryComboBox.DisplayMemberPath = "Name";
+                CategoryComboBox.SelectedValuePath = "Id";
             }
             catch (Exception ex)
             {
@@ -60,15 +52,14 @@ namespace WpfApp1
 
         private void SaveExpenseButton_Click(object sender, RoutedEventArgs e)
         {
-            // Проверяем, что категория выбрана
             if (CategoryComboBox.SelectedItem != null)
             {
-                // Получаем имя выбранной категории
-                string selectedCategory = CategoryComboBox.SelectedItem.ToString();
-                DateTime expenseDate = ExpenseDatePicker.SelectedDate ?? DateTime.Now; // Используем текущую дату, если не выбрана
+                var selectedCategory = (Category)CategoryComboBox.SelectedItem;
+
+                // Получение даты с учетом часового пояса
+                DateTime expenseDate = (ExpenseDatePicker.SelectedDate ?? DateTime.Now).ToUniversalTime(); // Конвертация в UTC
                 decimal cost;
 
-                // Проверяем корректность введенной стоимости
                 if (!decimal.TryParse(CostTextBox.Text, out cost))
                 {
                     MessageBox.Show("Пожалуйста, введите корректную стоимость.");
@@ -77,51 +68,25 @@ namespace WpfApp1
 
                 string comment = CommentTextBox.Text;
 
-                try
+                var expense = new Expense
                 {
-                    using (var conn = new NpgsqlConnection("Host=localhost;Username=postgres;Password=qwerty123;Database=home"))
-                    {
-                        conn.Open();
+                    CategoryId = selectedCategory.id,
+                    ExpenseDate = expenseDate, 
+                    Cost = cost,
+                    Coment = comment
+                };
 
-                        // Получаем ID категории на основе её имени
-                        int categoryId;
-                        using (var cmdCategoryId = new NpgsqlCommand("SELECT \"id\" FROM \"categories\" WHERE \"Name\" = @categoryName", conn))
-                        {
-                            cmdCategoryId.Parameters.AddWithValue("categoryName", selectedCategory);
-                            var result = cmdCategoryId.ExecuteScalar();
+                
+                _context.Expenses.Add(expense);
 
-                            if (result != null)
-                            {
-                                categoryId = Convert.ToInt32(result);
-                            }
-                            else
-                            {
-                                MessageBox.Show("Ошибка: выбранная категория не найдена в базе данных.");
-                                return;
-                            }
-                        }
+              
+                _context.SaveChanges();
 
-                        // Вставляем новый расход в таблицу Expenses
-                        using (var cmd = new NpgsqlCommand("INSERT INTO \"Expenses\" (\"CategoryId\", \"ExpenseDate\", \"Cost\", \"Coment\") VALUES (@categoryId, @expenseDate, @cost, @comment)", conn))
-                        {
-                            cmd.Parameters.AddWithValue("categoryId", categoryId);
-                            cmd.Parameters.AddWithValue("expenseDate", expenseDate);
-                            cmd.Parameters.AddWithValue("cost", cost);
-                            cmd.Parameters.AddWithValue("comment", comment);
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-
-                    MessageBox.Show("Расход успешно сохранен!");
-                    ExpenseDatePicker.SelectedDate = null;
-                    CostTextBox.Clear();
-                    CommentTextBox.Clear();
-                    CategoryComboBox.SelectedIndex = -1; // Сбрасываем выбор категории
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при сохранении расхода: {ex.Message}");
-                }
+                MessageBox.Show("Расход успешно сохранен!");
+                ExpenseDatePicker.SelectedDate = null;
+                CostTextBox.Clear();
+                CommentTextBox.Clear();
+                CategoryComboBox.SelectedIndex = -1;
             }
             else
             {
@@ -129,14 +94,11 @@ namespace WpfApp1
             }
         }
 
+
+
         private void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CategoryComboBox.SelectedItem != null)
-            {
-                string selectedCategory = CategoryComboBox.SelectedItem.ToString();
-
-                MessageBox.Show($"Вы выбрали категорию: {selectedCategory}");
-            }
+           
         }
     }
 }
